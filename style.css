@@ -5,10 +5,10 @@ body {
 	color: #0000AA;
 }
 
-/*div {
+.description {
 	border: 1px solid #0000AA;
 	padding: 5px;
-}*/
+}
 
 #editor {
         position: absolute;
