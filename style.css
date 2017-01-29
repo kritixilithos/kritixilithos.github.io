@@ -10,6 +10,12 @@ body {
 	padding: 5px;
 }*/
 
+#editor {
+        position: absolute;
+        width: 500px;
+	height: 400px;
+}
+
 a {
 	color: #000000;
 	text-decoration: none;
