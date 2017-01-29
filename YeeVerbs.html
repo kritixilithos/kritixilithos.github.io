@@ -28,7 +28,7 @@ echo "==========================================================================
 cat output.txt | perl -pe 's/.{20,}/Error 404\n/g'</div>
 
 <script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-<script>/*
+<script>
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/terminal");
     editor.getSession().setMode("ace/mode/sh");
@@ -36,6 +36,5 @@ cat output.txt | perl -pe 's/.{20,}/Error 404\n/g'</div>
     	maxLines: 5
     });
     editor.setReadOnly(true);
-    editor.resize(true);*/
 </script>
 </body>
