@@ -11,7 +11,7 @@ Hi
 
 <div id="editor">#!/bin/bash
 #Uses verbmaps to get the future proche stem for the verb
-curl verbmaps.com/en/verb/fr/$1 | perl -pe 's/\s//gs' | perl -pe 's/.*\&gt([^\&gt\&lt]+)\&lt\/span\&gt\&lt\/div\&gt\&ltdivclass="transform"\&gt.*\&gtAddfuture.*/$1\n/gi' \&gt output.txt
+curl verbmaps.com/en/verb/fr/$1 | perl -pe 's/\s//gs' | perl -pe 's/.*&gt([^&gt&lt]+)&lt\/span&gt&lt\/div&gt&ltdivclass="transform"&gt.*&gtAddfuture.*/$1\n/gi' &gt output.txt
 echo "================================================================================"
 cat output.txt | perl -pe 's/.{20,}/Error 404\n/g'</div>
 
