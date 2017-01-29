@@ -12,8 +12,8 @@ body {
 
 #editor {
         position: absolute;
-        width: 500px;
-	height: 400px;
+        width: auto;
+  	height: 100%;
 }
 
 a {
