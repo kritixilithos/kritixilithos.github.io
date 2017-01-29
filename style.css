@@ -12,7 +12,7 @@ body {
 
 #editor {
         position: absolute;
-        right: 5px;
+        width: 90%;
 	height: 100%;
 }
 
