@@ -21,8 +21,9 @@ cat output.txt | perl -pe 's/.{20,}/Error 404\n/g'</div>
     editor.setTheme("ace/theme/terminal");
     editor.getSession().setMode("ace/mode/sh");
     editor.setOptions({
-    	maxLines: 4
+    	maxLines: 5
     });
     editor.setReadOnly(true);
+    editor.resize(true);
 </script>
 </body>
