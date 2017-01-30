@@ -19,11 +19,88 @@
 	11 days ago, I was given a task for French to find the conjugations of a list of French verbs in the near future tense. And obviously, I tried to create a program for that. I started its creation in bash using <code>curl</code> as my starting point. It took me an hour or so, but I managed to get the basic program up and working.
 	
 	<br>
+	<pre><code class="language-none">verbStem.sh</code></pre>
+	<pre><code class="language-bash">#!/bin/bash
+#This is a sript that gets the verb stem for the below stated 4 languages for several tenses. It fetches the data from verbmaps.com
+#Multi-lingual support (French, Spanish, Italian, Portugese)
+#To run it:
+#$ sh verbStem.sh verb tense language
+#For example:
+#$ sh verbStem.sh avoir future french
+#ir-
 
-<pre><code class="language-bash">#!/bin/bash
-#Uses verbmaps to get the future proche stem for the verb
-curl verbmaps.com/en/verb/fr/$1 | perl -pe 's/\s//gs' | perl -pe 's/.*&gt([^&gt&lt]+)&lt\/span&gt&lt\/div&gt&ltdivclass="transform"&gt.*&gtAddfuture.*/$1\n/gi' &gt output.txt
-echo "================================================================================"
-cat output.txt | perl -pe 's/.{20,}/Error 404\n/g'</code></pre>
+verb=$(echo $1 | sed "s/ /%20/g")
+tense=$2
+language=$3
+
+if [ ! -f default.txt ]; then
+  echo "1 arg=&gtnone\n2 args=&gtnone" &gt default.txt
+fi
+
+getDefaultOption() {
+  cat default.txt | grep "$1" | perl -pe "s/$1 args?=&gt//g"
+}
+
+getVerb() {
+  #Replacing language names with their 2 characters
+  language=$(echo $3 | perl -pe "s/spanish/es/gi" | perl -pe "s/french/fr/gi" | perl -pe "s/portugese/pt/gi" | perl -pe "s/italian/it/gi")
+  
+  verb=$1
+  tense=$2
+
+  #Fetching the output and doing replacement on it to get the stem
+  curl -s verbmaps.com/en/verb/$language/$verb | perl -pe 's/\s//gs' | perl -pe 's/.*&gt([^&gt&lt]+)&lt\/span&gt&lt\/div&gt&ltdivclass="transform"&gt.*&gtAdd'+$tense+'.*/$1\n/gi' &gt output.txt
+
+  #If the output is longer than 20 characters, we remove it since it returned nothing. Also add a "-" at the end of output
+  tput setaf 10
+  cat output.txt | perl -pe 's/$/-/' | perl -pe 's/.{20,}/Error 404\n/g'
+  tput setaf 15
+}
+
+usage() {
+  cat &lt&lt EOM
+
+Usage:
+    sh verbStem.sh &ltverb&gt &lttense&gt &ltlanuage&gt     Outputs the stem of &ltverb&gt
+                                                in the &lttense&gt in &ltlanuage&gt
+    
+    sh verbStem.sh -h                           Outputs this help screen
+
+    sh verbStem.sh -dv                          Edits the defaults using vim
+
+    sh verbStem.sh -dn                          Edits the defaults using nano
+
+    sh verbStem.sh &ltverb&gt &ltdefault1&gt [default2] Outputs the stem of &ltverb&gt
+                                                in the &ltdefault1&gt tense in
+						an optional [default2]
+						language
+
+
+EOM
+}
+
+if test "$#" -ne 3; then
+  defaultOne=$(getDefaultOption 1)
+  defaultTwo=$(getDefaultOption 2)
+  if [ "$1" == "-h" ]; then
+    usage
+  elif [ "$1" == "-dv" ]; then
+    vim default.txt
+  elif [ "$1" == "-dn" ]; then
+    nano default.txt
+  elif [ "$defaultTwo" != "none" ]; then
+    if [ "$#" == "2" ]; then
+      getVerb $verb $tense $defaultTwo
+    elif [ "$#" == "1" ] && [ "$defaultOne" != "none" ]; then
+      getVerb $verb $defaultOne $defaultTwo
+    ##else TODO
+    fi
+  else
+    echo "Illegal number of parameters"
+    usage
+  fi
+else
+  getVerb $verb $tense $language
+fi</code></pre>
 <script src="./prism.js"></script>
 </body>
