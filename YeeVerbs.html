@@ -3,7 +3,7 @@
   <title>Yee Verbs | Kritixi Lithos</title>
   <link type="text/css" rel="stylesheet" href="./style.css" />
 	<link href='https://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
-
+	<link href="./prism.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -20,21 +20,10 @@
 	
 	<br>
 
-<div id="editor">#!/bin/bash
+<pre><code class="language-bash">#!/bin/bash
 #Uses verbmaps to get the future proche stem for the verb
 curl verbmaps.com/en/verb/fr/$1 | perl -pe 's/\s//gs' | perl -pe 's/.*&gt([^&gt&lt]+)&lt\/span&gt&lt\/div&gt&ltdivclass="transform"&gt.*&gtAddfuture.*/$1\n/gi' &gt output.txt
 echo "================================================================================"
-cat output.txt | perl -pe 's/.{20,}/Error 404\n/g'</div>
-
-<script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-<script>
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/terminal");
-    editor.getSession().setMode("ace/mode/sh");
-    editor.setOptions({
-    	maxLines: 5
-    });
-    editor.setReadOnly(true);
-    editor.resize(true);
-</script>
+cat output.txt | perl -pe 's/.{20,}/Error 404\n/g'</code></pre>
+<script src="./prism.js"></script>
 </body>
