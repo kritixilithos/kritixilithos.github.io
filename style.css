@@ -1,12 +1,12 @@
 body {
-  background: #00B0FF;
+  background: #00D0FF;
   font-size: 16px;
   font-family: 'Roboto Mono', monospace;
-	color: #0000AA;
+	color: #055;
 }
 
 .description {
-	border: 1px solid #0000AA;
+	border: 1px solid #055;
 	padding: 5px;
 }
 
