@@ -12,7 +12,7 @@
 	30 January 2016<br><br><br>
 	
 	<div class="description">
-	An Android application that gives you the stem of any verb in any tense in any language out of French, Spanish, Italian and Portuguese that uses <a href="http://verbmaps.com">Verb Maps</a> to give you the results.
+	An Android application that gives you the conjugation of any French verb or gives the stem of any verb in any tense in any language out of Spanish, Italian and Portuguese that uses <a href="http://verbmaps.com">Verb Maps</a> to give you the results.
 	</div>
 	<br>
 	
@@ -105,5 +105,46 @@ if test "$#" -ne 3; then
 else
   getVerb $verb $tense $language
 fi</code></pre>
+	
+	<br>
+	
+	Over the commits, I improved the UI, added flags: a help menu, a way of editing the default arguments for quick use. Also a bit of aesthetics by colouring the stem.
+	
+	<br><br>
+	
+	All nice eh? The next step is to put it into a usable application for easier use. For this, I had to come up with an Android app. But first, I must implement this in a simple Java program (I don't have to care about the UI since the Android app will take care of that).
+	
+	<pre><code class="language-java">import java.net.*;
+import java.io.*;
+import java.util.regex.*;
+import java.lang.*;
+
+class VerbStem {
+  public static void main(String[] args) throws Exception {
+    URL site;
+    try {
+      site = new URL("http://verbmaps.com/en/verb/"+args[2]+"/"+args[0]);
+      URLConnection yc = site.openConnection();
+      BufferedReader in = new BufferedReader(new InputStreamReader(
+            yc.getInputStream()));
+      String inputLine;
+      String content="";
+      while ((inputLine = in.readLine()) != null) 
+        content += inputLine;
+      in.close();
+  
+      content = content.replaceAll("\\s","");
+      Pattern p = Pattern.compile("(?<=>)([^><]+)(?=<\\/span><\\/div><divclass=\"transform\">[^>]*>Add"+args[1]+")",Pattern.CASE_INSENSITIVE);
+      Matcher matcher = p.matcher(content);
+      while (matcher.find()) {
+        System.out.println(matcher.group());
+      }
+    }
+    catch(Exception e) {
+      System.err.println("Error 404");
+    }
+  }
+}</code></pre>
+	
 <script src="./prism.js"></script>
 </body>
