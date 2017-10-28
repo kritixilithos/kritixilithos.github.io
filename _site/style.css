@@ -1,12 +1,8 @@
 body {
-<<<<<<< HEAD
-  /*background: #00D0FF;*/
-  background: #ffffff;
-=======
   background: #00D0FF;
->>>>>>> parent of cfa8f3f... test
+  /*background: #ffffff;*/
   font-size: 16px;
-  font-family: 'Futura', monospace;
+  font-family: 'Roboto Mono', monospace;
   color: #055;
 }
 

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<head>
+  <title>Yee Verbs | Kritixi Lithos</title>
+  <link type="text/css" rel="stylesheet" href="./style.css" />
+	<link href='https://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
+	<link href="./prism.css" rel="stylesheet" />
+</head>
+
+<body>
+	<h1>Yee Verbs</h1>
+	
+	30 January 2016<br><br><br>
+	
+	<div class="description">
+	An Android application that gives you the conjugation of any French verb or gives the stem of any verb in any tense in any language out of Spanish, Italian and Portuguese that uses <a href="http://verbmaps.com">Verb Maps</a> to give you the results.
+	</div>
+	<br>
+	
+	11 days ago, I was given a task for French to find the conjugations of a list of French verbs in the near future tense. And obviously, I tried to create a program for that. I started its creation in bash using <code>curl</code> as my starting point. It took me an hour or so, but I managed to get the basic program up and working.
+	Over time, I perfected it, improved it for proper usage. As of now, it could handle any verb, any tense, and any language (out of French, Spanish, Italian, Portuguese).
+	
+	I give you...
+	
+	<br>
+	<a href="https://github.com/kritixilithos/dot-dot-dot/blob/master/verbStem.sh"><pre><code class="language-none">verbStem.sh</code></pre></a>
+	<pre><code class="language-bash">#!/bin/bash
+#This is a sript that gets the verb stem for the below stated 4 languages for several tenses. It fetches the data from verbmaps.com
+#Multi-lingual support (French, Spanish, Italian, Portugese)
+#To run it:
+#$ sh verbStem.sh verb tense language
+#For example:
+#$ sh verbStem.sh avoir future french
+#ir-
+
+verb=$(echo $1 | sed "s/ /%20/g")
+tense=$2
+language=$3
+
+if [ ! -f default.txt ]; then
+  echo "1 arg=&gtnone\n2 args=&gtnone" &gt default.txt
+fi
+
+getDefaultOption() {
+  cat default.txt | grep "$1" | perl -pe "s/$1 args?=&gt//g"
+}
+
+getVerb() {
+  #Replacing language names with their 2 characters
+  language=$(echo $3 | perl -pe "s/spanish/es/gi" | perl -pe "s/french/fr/gi" | perl -pe "s/portugese/pt/gi" | perl -pe "s/italian/it/gi")
+  
+  verb=$1
+  tense=$2
+
+  #Fetching the output and doing replacement on it to get the stem
+  curl -s verbmaps.com/en/verb/$language/$verb | perl -pe 's/\s//gs' | perl -pe 's/.*&gt([^&gt&lt]+)&lt\/span&gt&lt\/div&gt&ltdivclass="transform"&gt.*&gtAdd'+$tense+'.*/$1\n/gi' &gt output.txt
+
+  #If the output is longer than 20 characters, we remove it since it returned nothing. Also add a "-" at the end of output
+  tput setaf 10
+  cat output.txt | perl -pe 's/$/-/' | perl -pe 's/.{20,}/Error 404\n/g'
+  tput setaf 15
+}
+
+usage() {
+  cat &lt&lt EOM
+
+Usage:
+    sh verbStem.sh &ltverb&gt &lttense&gt &ltlanuage&gt     Outputs the stem of &ltverb&gt
+                                                in the &lttense&gt in &ltlanuage&gt
+    
+    sh verbStem.sh -h                           Outputs this help screen
+
+    sh verbStem.sh -dv                          Edits the defaults using vim
+
+    sh verbStem.sh -dn                          Edits the defaults using nano
+
+    sh verbStem.sh &ltverb&gt &ltdefault1&gt [default2] Outputs the stem of &ltverb&gt
+                                                in the &ltdefault1&gt tense in
+						an optional [default2]
+						language
+
+
+EOM
+}
+
+if test "$#" -ne 3; then
+  defaultOne=$(getDefaultOption 1)
+  defaultTwo=$(getDefaultOption 2)
+  if [ "$1" == "-h" ]; then
+    usage
+  elif [ "$1" == "-dv" ]; then
+    vim default.txt
+  elif [ "$1" == "-dn" ]; then
+    nano default.txt
+  elif [ "$defaultTwo" != "none" ]; then
+    if [ "$#" == "2" ]; then
+      getVerb $verb $tense $defaultTwo
+    elif [ "$#" == "1" ] && [ "$defaultOne" != "none" ]; then
+      getVerb $verb $defaultOne $defaultTwo
+    ##else TODO
+    fi
+  else
+    echo "Illegal number of parameters"
+    usage
+  fi
+else
+  getVerb $verb $tense $language
+fi</code></pre>
+	
+	<br>
+	
+	Over the commits, I improved the UI, added flags: a help menu, a way of editing the default arguments for quick use. Also a bit of aesthetics by colouring the stem.
+	
+	<br><br>
+	
+	All nice eh? The next step is to put it into a usable application for easier use. For this, I had to come up with an Android app. But first, I must implement this in a simple Java program (I don't have to care about the UI since the Android app will take care of that).
+	
+	<a href="https://github.com/kritixilithos/dot-dot-dot/blob/master/VerbStem.java"><pre><code class="language-none">VerbStem.java</code></pre></a>
+	<pre><code class="language-java">import java.net.*;
+import java.io.*;
+import java.util.regex.*;
+import java.lang.*;
+
+class VerbStem {
+  public static void main(String[] args) throws Exception {
+    URL site;
+    try {
+      site = new URL("http://verbmaps.com/en/verb/"+args[2]+"/"+args[0]);
+      URLConnection yc = site.openConnection();
+      BufferedReader in = new BufferedReader(new InputStreamReader(
+            yc.getInputStream()));
+      String inputLine;
+      String content="";
+      while ((inputLine = in.readLine()) != null) 
+        content += inputLine;
+      in.close();
+  
+      content = content.replaceAll("\\s","");
+      Pattern p = Pattern.compile("(?<=>)([^><]+)(?=<\\/span><\\/div><divclass=\"transform\">[^>]*>Add"+args[1]+")",Pattern.CASE_INSENSITIVE);
+      Matcher matcher = p.matcher(content);
+      while (matcher.find()) {
+        System.out.println(matcher.group());
+      }
+    }
+    catch(Exception e) {
+      System.err.println("Error 404");
+    }
+  }
+}</code></pre>
+	
+	<br>
+    This finished rather quickly once I figured out  <code>URL</code> and how to extract the stems from it using regular expressions. And finally, all that was left is making the Android application.
+    
+    <br><br><br><br>
+    
+    First, I updated Android Studio (it has been a long time since I used it). Then I created a project. I asked my friends for a name
+    and they gave me <a href="https://github.com/kritixilithos/Yee-Verbs">"Yee Verbs"</a>. Click, click, long wait, more clicks, drag and drop, run, and bam: the basic UI had been completed.
+    
+    <br>
+    
+    Next up is making it responsive and actually give you the stem of the verb. I tried out the same approach as I did with <code>VerbStem.java</code>, but it didn't work! There was a problem with the <code>InputStreamReader</code> (I know there was nothing with the permissions because I included them in the Android Manifest). I asked a question on Stack Overflow, and it seems that I had to introduce accessing the source of the webpage in a separate thread. So I created an <code>AsyncTask</code> and it all went well! Within hours I was finished with the basic app after testing it with the newly redesigned <i>emu</i>lator (pardon me for the pun).
+    
+    The next day I showed this to my friends, and one of them suggested making the app into a full-fledged conjugator instead of only giving the stems of the verbs. No problem! I went back to work and completed it... except for a few drawbacks.
+    
+    <ul>
+     <li>It only works for French now instead of all the other verbs because VerbMaps is not consistent</li>
+     <li>It doesn't work for all tenses in French because of how VerbMaps chose to format some of the tense names</li>
+    </ul>
+    
+    <br>
+    
+    Gah.
+   
+<script src="./prism.js"></script>
+</body>
